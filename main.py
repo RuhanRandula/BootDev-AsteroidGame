@@ -1,22 +1,30 @@
+from asteroid import Asteroid
 from player import Player
 import pygame
-from constants import SCREEN_WIDTH, SCREEN_HEIGHT, LINE_WIDTH, PLAYER_TURN_SPEED, PLAYER_RADIUS
+from constants import SCREEN_WIDTH, SCREEN_HEIGHT, LINE_WIDTH, PLAYER_TURN_SPEED, PLAYER_RADIUS, PLAYER_SPEED, ASTEROID_MIN_RADIUS, ASTEROID_KINDS, ASTEROID_SPAWN_RATE_SECONDS, ASTEROID_MAX_RADIUS
 from player import Player
 from logger import log_state
+from asteroidfield import AsteroidField
 
 def main():
     print(f"""Starting Asteroid Game...
     Screen width: {SCREEN_WIDTH}
     Screen height: {SCREEN_HEIGHT}""")
     
-    #Create the two groups first
+    #Create the groups first
     updatable = pygame.sprite.Group()
     drawable = pygame.sprite.Group()
+    asteroids = pygame.sprite.Group()
     #Adding the new instances to the groups via player class.
     Player.containers = (updatable, drawable)
+    Asteroid.containers = (updatable, drawable, asteroids)
+    #only updatable group is needed for the asteroid field, since it doesn't have a draw function
+    AsteroidField.containers = (updatable,)
 
     #instantiate a player object
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+    #AsteroidField object instance, which will handle the spawning of asteroids
+    asteroid_field = AsteroidField()
     
     
     pygame.init()
@@ -26,7 +34,9 @@ def main():
     dt = 0
     
     #Creating two groups
-    main_group = pygame.sprite.Group(updatable, drawable)
+    # main_group = pygame.sprite.Group(updatable, drawable)
+    #Creating group for asteroid
+    asteroid_group = pygame.sprite.Group()
     # Game loop
     while True:
         for event in pygame.event.get():
@@ -41,7 +51,8 @@ def main():
         updatable.update(dt)
         #need to render the player, before flipping the display to show the changes(now loooping over the group instead)
         # player.draw(screen)
-        for sprite in main_group:
+        #Explicitly only drawable group
+        for sprite in drawable:
             sprite.draw(screen)
         pygame.display.flip()
         dt = pygame.time.Clock().tick(60) / 1000.0  # Convert milliseconds to seconds
