@@ -1,11 +1,14 @@
 from circleshape import CircleShape
-from constants import PLAYER_RADIUS, LINE_WIDTH, PLAYER_SPEED, SCREEN_HEIGHT, SCREEN_WIDTH, PLAYER_TURN_SPEED
+from constants import PLAYER_RADIUS, LINE_WIDTH, PLAYER_SHOOT_SPEED, PLAYER_SPEED, SCREEN_HEIGHT, SCREEN_WIDTH, PLAYER_TURN_SPEED, PLAYER_SHOOT_COOLDOWN_SECONDS, SHOT_RADIUS
 import pygame
+
+from shot import Shot
 
 class Player(CircleShape):
     def __init__(self, x, y):
         super().__init__(x, y, PLAYER_RADIUS)
         self.rotation = 0
+        self.shoot_cooldown_timer = 0
         
     
 
@@ -23,6 +26,10 @@ class Player(CircleShape):
         self.rotation += PLAYER_TURN_SPEED * dt
         
     def update(self, dt):
+        if self.shoot_cooldown_timer > 0:
+            self.shoot_cooldown_timer -= dt
+        
+        
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_a]:
@@ -33,6 +40,16 @@ class Player(CircleShape):
             self.move(dt)
         if keys[pygame.K_s]:
             self.move(-dt)
+        if keys[pygame.K_SPACE]:
+            #shot cooldown
+            if self.shoot_cooldown_timer <= 0:
+                self.shoot()
+                
+                self.shoot_cooldown_timer = PLAYER_SHOOT_COOLDOWN_SECONDS
+            
+                
+            
+            
 
     def move(self, dt):
         # unit vector pointing straight down from (0, 0) to (0, 1). Rotating in the same direction as the player rotation, so that it always points in the direction the player is facing
@@ -40,3 +57,12 @@ class Player(CircleShape):
         rotated_unit_vector_wspeed = unit_vector* PLAYER_SPEED * dt
         # Added forward vector to the player position, so that it moves in the direction it is facing
         self.position += rotated_unit_vector_wspeed
+        
+    #Shoot class
+    def shoot(self):
+        #Creats a shot at the current POS of the player.
+        unit_vector  = pygame.Vector2(0, 1).rotate(self.rotation)
+        shot_velocity = unit_vector * PLAYER_SHOOT_SPEED
+        return Shot(self.position.x, self.position.y, shot_velocity)
+    
+        

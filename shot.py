@@ -1,0 +1,19 @@
+from typing import override
+
+from circleshape import CircleShape
+from constants import SHOT_RADIUS
+import pygame
+
+class Shot(CircleShape):
+    def __init__(self, x, y, velocity):
+        super().__init__(x, y, SHOT_RADIUS)
+        self.velocity = velocity
+        
+    @override   
+    def draw(self, screen):
+        pygame.draw.circle(screen, "white", self.position, self.radius)
+        
+        
+    @override    
+    def update(self, dt):
+        self.position += self.velocity * dt
