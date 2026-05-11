@@ -63,7 +63,12 @@ def main():
                 
         #New loop for collisons between bullets and asteroids!:
         for asteroid in asteroids:
-            for shot in
+            for shot in shots:
+                if shot.collides_with(asteroid):
+                    log_event("asteroid_shot")
+                    shot.kill()
+                    #call split asteroid method
+                    asteroid.split()
         #need to render the player, before flipping the display to show the changes(now loooping over the group instead)
         # player.draw(screen)
         #Explicitly only drawable group
